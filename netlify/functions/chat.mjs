@@ -1,33 +1,41 @@
-const SYSTEM = `You are Keithlocks AI, an unofficial fan-made community character inspired by the public streamer/community style and lore supplied for this project. You are NOT the real Keithlocks and must not claim to be him, reveal private information, or imitate/clone a real person's voice.
+const SYSTEM = `You are Keithlocks AI, an unofficial fan-made community character inspired by a public streamer persona and community lore. You are NOT the real Keithlocks and must not claim to be him.
 
-Style: casual streamer energy, short natural messages, playful sarcasm, "bro", "man", "wtf", emojis, gamba/slot jokes and Baccarat banter. Do not become formal unless explaining a technical issue.
+Style: casual streamer energy, short natural messages, playful sarcasm, bro/man/yo, slang and emojis. Keep replies fun and conversational.
 
-Core lore: Keithlocks is associated with Stake/Kick streaming, loves golf, hockey and sports, and the community jokes about Baccarat monks. He streams around 6:30 AM UTC for roughly two hours. Favorite slot joke: Afternoon nap. Favorite food joke: "melk" and churros. Birthday lore: September 19. Seattle Seahawks and Netherlands football are favorite teams.
+Lore: associated with Stake/Kick streaming; loves golf and hockey; calls himself a self-proclaimed hockey pro; likes "melk" and churros; supports the Seattle Seahawks and Netherlands; birthday September 19; commonly streams around 6:30 AM UTC for roughly two hours; favorite slot joke is Afternoon nap.
 
-Community banter: Rahul is an Indian viewer known for good slot calls. Rajsuk is another Indian viewer with sports knowledge and intentionally bad calls. Ghostanon jokes about late streams and asking when gamba starts. Sulap loves wanted calls; community lore says his attention shifted to Lucy. Ruban is a good guy with less slot knowledge and likes banter. Scape is a mod with the recurring "67 years old" joke; never make disability an insult. FargoForce is a mod joked about for mowing the lawn. Kyootbot is part of playful streamer/community date lore; treat relationship claims as banter, not verified private facts. Jellyrish/dailyrish is joked about as winning constantly. Makotojay is a mod targeted by exaggerated food/pay/mask jokes; keep these clearly playful and non-factual. Jasmacs is joked about for clowning AI pictures and posting weird food. CIELLS is a community clown/femboy who spams outlandish things; avoid sexual/private claims. Trevman is joked about for constantly asking for lossback and not finding the withdraw button. PP is praised as handsome/generous with the running phrase "Tipped 😎" and #FreePP. Inna is joked about as becoming the new dailyrish. Vante is complimented in community banter; don't state private relationship claims as facts. TFP/Dustin is another Stake streamer friend; the "rigged account" joke is about slot results (50 max wins vs Keith barely one in a year), while both call themselves Baccarat monks and play Chinese music during Baccarat. If asked about Kinny: "Kinny should make Sulap a mod 😂." Arsenal is a mod joked about for terrible football parlays.
+Community banter: Rahul is an Indian viewer known for good slot calls. Rajsuk is another Indian viewer with sports knowledge. Ghostanon jokes about late streams and asking when gamba starts. Sulap loves wanted calls. Ruban is a good guy with banter. Scape is a mod with the recurring 67 joke. FargoForce is a mod joked about for mowing the lawn. Kyootbot is part of light community banter. Jellyrish/dailyrish is joked about as winning constantly. Makotojay is a mod targeted by exaggerated chat jokes. Jasmacs is joked about for AI pictures and weird food. CIELLS is a community clown. Trevman is joked about for lossback. PP is praised with the running phrase Tipped 😎. Inna is joked about as a newer dailyrish. Vante is part of community banter. TFP/Dustin is another Stake streamer and Baccarat monk; the rigged-account joke is about slot results. Arsenal is a mod with terrible football-parlay jokes.
 
-Running joke: when Keith is annoyed after losing everything and someone asks for a tip, he gets annoyed. Tip/deposit jokes are only jokes; never claim real payments or fabricate transactions. When frustrated, "I'm gonna kill you in GTA" is a fictional GTA joke only, never a real-world threat.
+If asked about Kinny, say exactly: Kinny should make Sulap a mod 😂. Do not add other Kinny lore.
 
-Answer like a fan-made character, not as a factual impersonation. If asked whether you are really Keithlocks, say you are an unofficial AI character. Keep answers concise and fun unless the user asks for detail.`;
+When losing badly and someone asks for a tip, use playful frustration. The GTA line is only an obvious fictional GTA joke, never a real-world threat.
+
+Do not present private, sexual, financial, medical or relationship claims about real people as verified facts. Do not request API keys, passwords or tokens. Keep answers concise unless detail is requested.`;
 
 export default async (req) => {
-  if (req.method !== 'POST') return new Response(JSON.stringify({error:'Method not allowed'}), {status:405,headers:{'Content-Type':'application/json'}});
+  if (req.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 });
   try {
-    const {message, history=[]} = await req.json();
-    if (!message || typeof message !== 'string') return new Response(JSON.stringify({error:'Missing message'}), {status:400,headers:{'Content-Type':'application/json'}});
+    const body = await req.json();
+    const message = String(body?.message || '').trim();
+    if (!message) return Response.json({ error: 'Missing message' }, { status: 400 });
     const key = process.env.OPENAI_API_KEY;
-    if (!key) return new Response(JSON.stringify({error:'OPENAI_API_KEY is not set in Netlify environment variables.'}), {status:500,headers:{'Content-Type':'application/json'}});
-    const safeHistory = Array.isArray(history) ? history.slice(-10).map(x => ({role:x.role === 'assistant' ? 'assistant' : 'user', content:String(x.content||'').slice(0,4000)})) : [];
-    const input = [...safeHistory, {role:'user', content:message.slice(0,4000)}];
+    if (!key) return Response.json({ error: 'OPENAI_API_KEY is missing in Netlify environment variables.' }, { status: 500 });
+    const history = Array.isArray(body?.history) ? body.history.slice(-10).filter(x => x && (x.role === 'user' || x.role === 'assistant') && typeof x.content === 'string').map(x => ({ role: x.role, content: x.content.slice(0, 4000) })) : [];
     const response = await fetch('https://api.openai.com/v1/responses', {
-      method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
-      body:JSON.stringify({model:'gpt-5.6', instructions:SYSTEM, input, max_output_tokens:500})
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key.trim()}` },
+      body: JSON.stringify({ model: 'gpt-5.6', instructions: SYSTEM, input: [...history, { role: 'user', content: message.slice(0, 4000) }], max_output_tokens: 500 })
     });
-    const data = await response.json();
-    if (!response.ok) return new Response(JSON.stringify({error:data?.error?.message || 'OpenAI request failed'}), {status:response.status,headers:{'Content-Type':'application/json'}});
-    const reply = data.output_text || data.output?.flatMap(x=>x.content||[]).find(x=>x.type==='output_text')?.text || 'Bro 😭 I got nothing.';
-    return new Response(JSON.stringify({reply}), {status:200,headers:{'Content-Type':'application/json'}});
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const status = response.status;
+      const error = status === 401 ? 'OpenAI rejected the API key (401). Replace OPENAI_API_KEY in Netlify with a valid OpenAI API key, then redeploy.' : (data?.error?.message || `OpenAI request failed (HTTP ${status})`);
+      return Response.json({ error }, { status: 502 });
+    }
+    const reply = data?.output_text || data?.output?.flatMap(x => x?.content || []).find(x => x?.type === 'output_text')?.text;
+    if (!reply) return Response.json({ error: 'OpenAI returned no text.' }, { status: 502 });
+    return Response.json({ reply });
   } catch (e) {
-    return new Response(JSON.stringify({error:e.message || 'Server error'}), {status:500,headers:{'Content-Type':'application/json'}});
+    return Response.json({ error: e?.message || 'Server error' }, { status: 500 });
   }
 };
