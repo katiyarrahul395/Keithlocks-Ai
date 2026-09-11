@@ -7,7 +7,7 @@
   <meta name="description" content="Keithlocks AI — an unofficial fan-made community AI character.">
   <title>Keithlocks AI</title>
   <style>
-    :root{--bg:#07070b;--panel:#101017;--panel2:#13131b;--line:#292936;--text:#f7f6fa;--muted:#92909e;--green:#79efad;--purple:#7b45f4;--purple2:#b14df0}
+    :root{--bg:#07070b;--panel:#101017;--line:#292936;--text:#f7f6fa;--muted:#92909e;--green:#79efad;--purple:#7b45f4;--purple2:#b14df0}
     *{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{margin:0;background:radial-gradient(900px 420px at 50% -120px,#28134a 0,#0b0911 46%,var(--bg) 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}.app{width:min(900px,100%);margin:auto;min-height:100vh}
     header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:13px;padding:15px 16px;border-bottom:1px solid #24242e;background:rgba(7,7,11,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
     .logo{width:58px;height:58px;flex:0 0 58px;border-radius:18px;display:grid;place-items:center;font-size:34px;font-weight:900;background:linear-gradient(145deg,var(--purple),var(--purple2));box-shadow:0 12px 35px #7b45f438}.brand{min-width:0}h1{font-size:24px;line-height:1;margin:0 0 7px;font-weight:850;letter-spacing:-.6px}.status{font-size:13px;color:var(--green);display:flex;align-items:center;gap:7px}.dot{width:8px;height:8px;border-radius:50%;background:#4be69a;box-shadow:0 0 12px #4be69a}.actions{margin-left:auto;display:flex;gap:8px}.icon{width:48px;height:48px;border:1px solid var(--line);border-radius:16px;background:#0f0f16;color:#fff;font-size:22px}.icon:active,.chip:active,.send:active{transform:scale(.96)}
@@ -20,32 +20,21 @@
 </head>
 <body>
   <div class="app">
-    <header>
-      <div class="logo">K</div>
-      <div class="brand"><h1>Keithlocks AI</h1><div class="status"><span class="dot"></span> online · unofficial AI character</div></div>
-      <div class="actions"><button class="icon" id="newChat" aria-label="New chat">↻</button><button class="icon" id="info" aria-label="About">i</button></div>
-    </header>
+    <header><div class="logo">K</div><div class="brand"><h1>Keithlocks AI</h1><div class="status"><span class="dot"></span> online · unofficial AI character</div></div><div class="actions"><button class="icon" id="newChat" aria-label="New chat">↻</button><button class="icon" id="info" aria-label="About">i</button></div></header>
     <main>
-      <section class="intro"><h2>Yo bro 😎 what's good?</h2><p>Ask anything. Gemini handles the conversation, while the Keithlocks community lore is used when it actually fits the question.</p></section>
-      <div class="chips">
-        <button class="chip">What slot should I play?</button><button class="chip">What if I don't want Afternoon nap?</button><button class="chip">What do you think about Meltdown?</button><button class="chip">What do you think about Rahul?</button><button class="chip">Who is Ghostanon?</button><button class="chip">Who is the Baccarat monk?</button><button class="chip">What's your favourite food?</button>
-      </div>
+      <section class="intro"><h2>Yo bro 😎 what's good?</h2><p>Ask anything. Gemini is tried first, then the site can automatically fall back to another configured free AI provider if Gemini is out of quota.</p></section>
+      <div class="chips"><button class="chip">What slot should I play?</button><button class="chip">What if I don't want Afternoon nap?</button><button class="chip">What do you think about Meltdown?</button><button class="chip">What do you think about Rahul?</button><button class="chip">Who is Ghostanon?</button><button class="chip">Who is the Baccarat monk?</button><button class="chip">What's your favourite food?</button></div>
       <div id="chat" aria-live="polite"></div>
     </main>
   </div>
-
-  <div class="composer"><div class="compose"><textarea id="input" class="input" placeholder="Message Keithlocks AI..." rows="1" maxlength="2500"></textarea><button id="send" class="send">Send</button></div><div class="notice">Unofficial fan project · powered by Gemini · key stays on Netlify</div></div>
-
-  <div class="modal" id="modal"><div class="box"><button class="close" id="close" aria-label="Close">×</button><h3>Keithlocks AI</h3><span class="pill">Unofficial fan project</span><p>This is a fan-made AI character inspired by community lore and public-style references supplied for this project. It is not the real Keithlocks and does not claim to speak for him.</p><p>Gemini is called from a Netlify Function, so your API key is kept in a Netlify environment variable instead of being exposed in the page.</p></div></div>
-
+  <div class="composer"><div class="compose"><textarea id="input" class="input" placeholder="Message Keithlocks AI..." rows="1" maxlength="2500"></textarea><button id="send" class="send">Send</button></div><div class="notice">Unofficial fan project · Gemini + free-provider fallback · keys stay on Netlify</div></div>
+  <div class="modal" id="modal"><div class="box"><button class="close" id="close" aria-label="Close">×</button><h3>Keithlocks AI</h3><span class="pill">Unofficial fan project</span><p>This is a fan-made AI character inspired by community lore and public-style references supplied for this project. It is not the real Keithlocks and does not claim to speak for him.</p><p>The site tries Gemini first. If Gemini is unavailable or out of quota, it automatically tries the other providers configured in your Netlify environment variables. API keys are kept server-side in Netlify.</p></div></div>
 <script>
-const chat=document.getElementById('chat'),input=document.getElementById('input'),send=document.getElementById('send'),modal=document.getElementById('modal');
-let history=[];
+const chat=document.getElementById('chat'),input=document.getElementById('input'),send=document.getElementById('send'),modal=document.getElementById('modal');let history=[];
 function addMessage(text,user=false,thinking=false){const row=document.createElement('div');row.className='row '+(user?'user':'assistant');if(!user){const a=document.createElement('div');a.className='avatar';a.textContent='K';row.appendChild(a)}const bubble=document.createElement('div');bubble.className='bubble'+(thinking?' thinking':'');bubble.textContent=text;row.appendChild(bubble);chat.appendChild(row);row.scrollIntoView({behavior:'smooth',block:'end'});return bubble}
 function reset(){history=[];chat.innerHTML='';addMessage("Yo bro 😎 what's good? Ask me anything — community stuff, random stuff, whatever. Just don't start asking for a tip after I lose everything 😂");input.focus()}
-function resize(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,130)+'px'}
-input.addEventListener('input',resize);
-async function ask(message){message=String(message||'').trim();if(!message||send.disabled)return;addMessage(message,true);history.push({role:'user',text:message});input.value='';resize();send.disabled=true;const bubble=addMessage('Thinking',false,true);bubble.innerHTML='Thinking <span>•</span><span>•</span><span>•</span>';try{const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),20000);let response;try{response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16)}),signal:controller.signal})}finally{clearTimeout(timer)}let data={};try{data=await response.json()}catch(e){}if(!response.ok||!data.reply)throw new Error(data.error||'Gemini did not return a reply.');bubble.classList.remove('thinking');bubble.textContent=data.reply;history.push({role:'model',text:data.reply})}catch(error){bubble.classList.remove('thinking');bubble.textContent='Bro 😭 '+(error.name==='AbortError'?'Gemini took too long. Try again in a sec.':(error.message||'Gemini connection is cooked. Try again in a sec.'))}finally{send.disabled=false;input.focus()}}
+function resize(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,130)+'px'}input.addEventListener('input',resize);
+async function ask(message){message=String(message||'').trim();if(!message||send.disabled)return;addMessage(message,true);history.push({role:'user',text:message});input.value='';resize();send.disabled=true;const bubble=addMessage('Thinking',false,true);bubble.innerHTML='Thinking <span>•</span><span>•</span><span>•</span>';try{const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),22000);let response;try{response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16)}),signal:controller.signal})}finally{clearTimeout(timer)}let data={};try{data=await response.json()}catch(e){}if(!response.ok||!data.reply)throw new Error(data.error||'No AI provider returned a reply.');bubble.classList.remove('thinking');bubble.textContent=data.reply;history.push({role:'model',text:data.reply})}catch(error){bubble.classList.remove('thinking');bubble.textContent=error.name==='AbortError'?'Bro 😭 the AI providers took too long. Try again in a sec.':'Bro 😭 '+(error.message||'all the AI providers are cooked right now. Try again in a sec.')}finally{send.disabled=false;input.focus()}}
 send.addEventListener('click',()=>ask(input.value));input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask(input.value)}});document.querySelectorAll('.chip').forEach(chip=>chip.addEventListener('click',()=>ask(chip.textContent)));document.getElementById('newChat').addEventListener('click',reset);document.getElementById('info').addEventListener('click',()=>modal.classList.add('open'));document.getElementById('close').addEventListener('click',()=>modal.classList.remove('open'));modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});reset();
 </script>
 </body>
