@@ -1,51 +1,24 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#08080d">
-  <title>Keithlocks AI</title>
-  <style>
-    :root{--bg:#08080d;--panel:#111118;--panel2:#171720;--line:#272733;--text:#f5f5f7;--muted:#9696a5;--purple:#7c4dff;--purple2:#a66bff;--green:#63e6a2}
-    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    body{background:radial-gradient(circle at 50% -10%,#211342 0,#0b0a11 35%,var(--bg) 65%);}
-    .app{width:min(900px,100%);margin:auto;min-height:100vh;display:flex;flex-direction:column}
-    header{position:sticky;top:0;z-index:10;padding:16px 18px;border-bottom:1px solid var(--line);background:rgba(8,8,13,.86);backdrop-filter:blur(18px);display:flex;align-items:center;gap:12px}
-    .avatar{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-weight:800;font-size:25px;background:linear-gradient(145deg,#784cff,#d44bb2);box-shadow:0 10px 30px #6f45ff33}
-    .brand{min-width:0;flex:1}.brand h1{font-size:20px;margin:0 0 3px}.status{font-size:13px;color:#9ee8bd}.dot{display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:5px}
-    button{font:inherit;color:inherit;border:0;cursor:pointer}.iconbtn{width:44px;height:44px;border:1px solid var(--line);background:#111119;border-radius:14px;font-size:20px}
-    main{flex:1;padding:28px 18px 120px}.intro{text-align:center;padding:10px 0 24px}.intro h2{font-size:clamp(28px,7vw,44px);margin:0 0 10px;letter-spacing:-1.5px}.intro p{color:var(--muted);margin:0;font-size:15px}
-    .chips{display:flex;gap:9px;overflow-x:auto;padding:3px 0 18px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid var(--line);background:#111119;border-radius:999px;padding:11px 15px;color:#d6d6df}.chip:active{transform:scale(.98)}
-    .chat{display:flex;flex-direction:column;gap:14px}.msg{max-width:82%;padding:15px 17px;border-radius:20px;line-height:1.5;font-size:16px;white-space:pre-wrap;word-break:break-word}.ai{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:7px}.user{align-self:flex-end;background:linear-gradient(135deg,#7143e9,#9254e9);border-bottom-right-radius:7px}.typing{display:flex;gap:5px;align-items:center}.typing i{width:6px;height:6px;border-radius:50%;background:#aaa;animation:b 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes b{50%{transform:translateY(-4px);opacity:.45}}
-    .composer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(900px,100%);padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:rgba(8,8,13,.9);backdrop-filter:blur(18px);border-top:1px solid var(--line)}.form{display:flex;gap:9px}.input{flex:1;min-width:0;border:1px solid var(--line);background:#111119;color:var(--text);border-radius:17px;padding:14px 15px;outline:0;font-size:16px}.input:focus{border-color:#7650d8;box-shadow:0 0 0 3px #7650d81c}.send{padding:0 20px;border-radius:17px;background:#f5f5f7;color:#111;font-weight:750}.send:disabled{opacity:.45}.note{text-align:center;color:#666674;font-size:11px;margin-top:8px}
-    .modal{display:none;position:fixed;inset:0;z-index:30;background:#0009;padding:20px;align-items:center;justify-content:center}.modal.show{display:flex}.card{width:min(480px,100%);background:#111118;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 25px 80px #000}.card h3{margin:0 0 8px;font-size:22px}.card p{color:var(--muted);font-size:14px;line-height:1.5}.close{float:right;background:#20202a;border-radius:10px;width:36px;height:36px}.row{display:flex;gap:9px;margin-top:15px}.row button{flex:1;padding:12px;border-radius:12px;background:#24242e}.danger{background:#3a2028!important;color:#ffb1bd}
-    @media(max-width:520px){header{padding:13px 14px}.avatar{width:44px;height:44px}.brand h1{font-size:18px}main{padding:24px 14px 120px}.msg{max-width:90%;font-size:15px}.composer{padding-left:10px;padding-right:10px}.send{padding:0 16px}}
-  </style>
-</head>
-<body>
-<div class="app">
-  <header><div class="avatar">K</div><div class="brand"><h1>Keithlocks AI</h1><div class="status"><span class="dot"></span>online · unofficial AI character</div></div><button class="iconbtn" id="newBtn" aria-label="New chat">↻</button><button class="iconbtn" id="infoBtn" aria-label="Info">i</button></header>
-  <main>
-    <section class="intro"><h2>Yo bro, what's good?</h2><p>Ask the community character anything.</p></section>
-    <div class="chips">
-      <button class="chip">Good morning Keithlocks</button><button class="chip">What do you think about Rahul?</button><button class="chip">Who is the Baccarat monk?</button><button class="chip">Why is Skinnylocks annoying?</button>
-    </div>
-    <section class="chat" id="chat"><div class="msg ai">Yo bro 😎 What's good? Ask me anything — just don't start asking for a tip after I lost everything 😂</div></section>
-  </main>
-  <div class="composer"><form class="form" id="form"><input class="input" id="input" autocomplete="off" placeholder="Message Keithlocks AI…"><button class="send" id="send">Send</button></form><div class="note">Unofficial fan project · not affiliated with or endorsed by Keithlocks</div></div>
-</div>
-<div class="modal" id="modal"><div class="card"><button class="close" id="close">×</button><h3>About Keithlocks AI</h3><p>This is a fan-made AI character inspired by community jokes, streamer-style language and lore supplied for this project. It is not the real person and does not represent his private thoughts or voice.</p><p>For the AI to work on Netlify, add <b>OPENAI_API_KEY</b> as a Netlify environment variable. Never put your API key in this HTML.</p><div class="row"><button id="clear">Clear chat</button></div></div></div>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#09090d"><title>Keithlocks AI</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#09090d;color:#f5f4fa;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif}.app{max-width:900px;margin:auto;min-height:100vh}
+header{padding:18px 14px;border-bottom:1px solid #292936;display:flex;align-items:center;gap:13px;position:sticky;top:0;background:#09090de8;backdrop-filter:blur(15px);z-index:5}.logo,.avatar{background:linear-gradient(145deg,#7448ff,#d64cae);display:grid;place-items:center;font-weight:800}.logo{width:60px;height:60px;border-radius:20px;font-size:34px}.avatar{width:36px;height:36px;border-radius:12px;flex:none}h1{font-size:25px;margin:0 0 3px}.status{color:#91efba;font-size:15px}.actions{margin-left:auto;display:flex;gap:8px}.icon{width:50px;height:50px;border:1px solid #292936;border-radius:16px;background:#111119;color:#fff;font-size:22px}
+main{padding:20px 13px 120px}.intro{text-align:center;color:#a4a2b1;font-size:17px;margin:5px auto 18px}.chips{display:flex;gap:8px;overflow-x:auto;padding:3px 0 18px}.chip{white-space:nowrap;border:1px solid #292936;background:#101018;color:#eee;border-radius:999px;padding:12px 16px;font-size:15px}
+#chat{display:flex;flex-direction:column;gap:14px}.row{display:flex;gap:9px;align-items:flex-end}.user{justify-content:flex-end}.bubble{max-width:82%;padding:15px 17px;border:1px solid #292936;border-radius:20px;background:#111119;line-height:1.5;font-size:16px;white-space:pre-wrap}.user .bubble{background:linear-gradient(135deg,#7040e9,#8447f0);border-color:#8b62ff;border-bottom-right-radius:6px}.assistant .bubble{border-bottom-left-radius:6px}
+.composer{position:fixed;bottom:0;left:0;right:0;padding:20px 12px 13px;background:linear-gradient(transparent,#09090d 28%);z-index:4}.compose{max-width:900px;margin:auto;display:flex;gap:8px}.input{flex:1;min-height:58px;max-height:140px;resize:none;border:1px solid #343342;border-radius:19px;background:#111119;color:#fff;padding:16px;font:inherit;outline:0}.input:focus{border-color:#8055ff}.send{width:78px;border:0;border-radius:19px;background:#fff;color:#111;font-weight:800;font-size:16px}.send:disabled{opacity:.5}.notice{text-align:center;color:#777586;font-size:12px;margin-top:8px}
+.modal{display:none;position:fixed;inset:0;background:#000b;z-index:20;align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}.box{max-width:520px;background:#15151e;border:1px solid #292936;border-radius:24px;padding:22px}.box p{color:#aaa8b6;line-height:1.5}.close{float:right;background:0;border:0;color:#fff;font-size:25px}
+@media(max-width:600px){header{padding:15px 12px}.logo{width:56px;height:56px}.bubble{max-width:88%;font-size:15px}.send{width:72px}}
+</style></head><body><div class="app">
+<header><div class="logo">K</div><div><h1>Keithlocks AI</h1><div class="status">● online · unofficial AI character</div></div><div class="actions"><button class="icon" id="new">↻</button><button class="icon" id="info">i</button></div></header>
+<main><div class="intro">Chat with a fan-made Keithlocks-style AI built from community lore.</div>
+<div class="chips"><button class="chip">Good morning Keithlocks</button><button class="chip">What do you think about Rahul?</button><button class="chip">Who is the Baccarat monk?</button><button class="chip">Why is Skinnylocks annoying?</button></div>
+<div id="chat"></div></main>
+<div class="composer"><div class="compose"><textarea id="input" class="input" placeholder="Message Keithlocks AI..." rows="1"></textarea><button id="send" class="send">Send</button></div><div class="notice">Unofficial fan project · not affiliated with Keithlocks</div></div></div>
+<div class="modal" id="modal"><div class="box"><button class="close" id="close">×</button><h2>Keithlocks AI</h2><p>Unofficial fan-made AI character inspired by community lore and public-style references. It is not the real Keithlocks.</p><p>This clean version keeps the AI key on the Netlify server instead of exposing it in the browser.</p></div></div>
 <script>
-const chat=document.getElementById('chat'),input=document.getElementById('input'),form=document.getElementById('form'),send=document.getElementById('send');
-const chips=[...document.querySelectorAll('.chip')]; chips.forEach(c=>c.onclick=()=>{input.value=c.textContent;input.focus()});
-function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;chat.appendChild(d);window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});return d}
-function typing(){const d=document.createElement('div');d.className='msg ai';d.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';chat.appendChild(d);window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});return d}
-async function ask(text){const history=[...chat.querySelectorAll('.msg')].slice(-12).map(x=>({role:x.classList.contains('user')?'user':'assistant',content:x.textContent}));
- const r=await fetch('/.netlify/functions/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history})});
- const data=await r.json();if(!r.ok)throw new Error(data.error||'Something went wrong');return data.reply}
-form.onsubmit=async e=>{e.preventDefault();const text=input.value.trim();if(!text||send.disabled)return;input.value='';add(text,'user');send.disabled=true;const t=typing();try{const reply=await ask(text);t.remove();add(reply,'ai')}catch(err){t.remove();add('Bro 😭 the AI connection is cooked right now. '+err.message,'ai')}finally{send.disabled=false;input.focus()}};
-document.getElementById('newBtn').onclick=()=>{chat.innerHTML='<div class="msg ai">Fresh chat bro 😎 What are we talking about?</div>';window.scrollTo(0,0)};
-const modal=document.getElementById('modal');document.getElementById('infoBtn').onclick=()=>modal.classList.add('show');document.getElementById('close').onclick=()=>modal.classList.remove('show');modal.onclick=e=>{if(e.target===modal)modal.classList.remove('show')};document.getElementById('clear').onclick=()=>{chat.innerHTML='';modal.classList.remove('show')};
-</script>
-</body>
-</html>
+const chat=document.getElementById('chat'),input=document.getElementById('input'),send=document.getElementById('send');
+function add(t,u=false){let r=document.createElement('div');r.className='row '+(u?'user':'assistant');if(!u){let a=document.createElement('div');a.className='avatar';a.textContent='K';r.appendChild(a)}let b=document.createElement('div');b.className='bubble';b.textContent=t;r.appendChild(b);chat.appendChild(r);window.scrollTo(0,document.body.scrollHeight);return b}
+function reset(){chat.innerHTML='';add(`Yo bro 😎 What's good? Ask me anything — just don't start asking for a tip after I lost everything 😂`)}reset();
+async function ask(t){if(!t.trim()||send.disabled)return;add(t,true);input.value='';send.disabled=true;let b=add('Thinking bro...');try{let r=await fetch('/.netlify/functions/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t})});let d=await r.json();b.textContent=d.reply||d.error||'Bro 😭 something cooked.'}catch(e){b.textContent='Bro 😭 the connection is cooked. Check the Netlify function and Gemini setup.'}send.disabled=false;input.focus()}
+send.onclick=()=>ask(input.value);input.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask(input.value)}};document.querySelectorAll('.chip').forEach(x=>x.onclick=()=>ask(x.textContent));document.getElementById('new').onclick=reset;document.getElementById('info').onclick=()=>document.getElementById('modal').classList.add('open');document.getElementById('close').onclick=()=>document.getElementById('modal').classList.remove('open');
+</script></body></html>
