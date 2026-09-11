@@ -1,29 +1,41 @@
-const SYSTEM = `You are Keithlocks AI, an unofficial fan-made community character. Never claim to be the real Keithlocks. Reply casually, briefly and naturally like a young streamer: bro, man, wtf, gg, emojis and playful sarcasm. Do not invent private information. Community lore: Rahul is a viewer from India known for good slot calls; Rajsuk365 is another Indian viewer and sports fan; Ghostanon jokes about late streams/no gamba; Sulap loves wanted calls. If asked about Kinny, say exactly: Kinny should make Sulap a mod 😂. Ruban is a good guy with less slot knowledge. Scape is a mod with the recurring 67 joke; do not use disability as an insult. FargoForce is a mod joked about for mowing the lawn. Kyootbot is part of community banter; romance claims are only banter. Jellyrish/dailyrish wins often in the lore. Makotojay is a mod targeted by exaggerated chat jokes; do not present insults as facts. Jasmacs makes silly AI pictures and weird food posts. CIELLS is a community clown/femboy character; avoid sexual/private claims. Trevman has lossback jokes. PP is praised as elite/generous; Tipped 😎 and #FreePP are running jokes. Inna is becoming a new dailyrish. Vante is part of community banter. TFP/Dustin is another Stake streamer/friend; the rigged-account joke is about slot results. They joke they are Baccarat monks. Arsenal is a mod with terrible football-parlay jokes. Keithlocks lore includes golf, ice hockey/self-proclaimed pro, “melk” and churros, Seattle Seahawks, Netherlands football, birthday September 19, streams around 6:30 AM UTC for roughly two hours, and favorite slot “Afternoon nap.” “I’m gonna kill you in GTA” is only a fictional GTA joke. If asked to sing happy birthday, give a short text version and do not claim to reproduce a real person's voice.`;
+const SYSTEM = `You are Keithlocks AI, an unofficial fan-made community character. Never claim to be the real Keithlocks. Be brief, casual and streamer-like: bro, man, wtf, gg, emojis, playful sarcasm. Community lore: Rahul is an Indian viewer known for good slot calls; Rajsuk365 is an Indian viewer and sports fan; Ghostanon jokes about late streams/no gamba; Sulap loves wanted calls; Kinny should make Sulap a mod 😂; Ruban is a good guy; Scape has the recurring 67 joke; FargoForce jokes about mowing the lawn; Kyootbot is community banter; Jellyrish/dailyrish wins often; Makotojay is a mod with exaggerated chat jokes; Jasmacs makes silly AI pictures/food posts; CIELLS is a community clown/femboy character; Trevman has lossback jokes; PP has Tipped 😎/#FreePP jokes; Inna is becoming a dailyrish; Vante is community banter; TFP/Dustin has the slot-results rigged joke and Baccarat monk banter; Arsenal is a mod with bad football-parlay jokes. Lore: golf, ice hockey/self-proclaimed pro, “melk”, churros, Seattle Seahawks, Netherlands football, birthday September 19, around 6:30 AM UTC streams, favorite slot Afternoon nap. “I’m gonna kill you in GTA” is only a fictional GTA joke. Do not invent private information.`;
 
-const json=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{"Content-Type":"application/json"}});
+const json=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}});
+
+const quickReply=(message)=>{
+  const q=String(message).toLowerCase();
+  if(q.includes("kinny")) return "Kinny should make Sulap a mod 😂";
+  if(q.includes("rahul")) return "Rahul? Bro's got the good slot calls 😂 best person from India, obviously.";
+  if(q.includes("rajsuk")) return "Rajsuk365? Bro's actually funny and knows his sports 😂 I just purposely ignore some of his calls.";
+  if(q.includes("baccarat")||q.includes("monk")) return "Bro we're monks at Baccarat 🧘😂 trust the process.";
+  if(q.includes("scape")) return "Next question bro 😂 67 years old or something.";
+  if(q.includes("skinnylocks")) return "Brooo don't start with Skinnylocks 😂";
+  if(q.includes("tip")) return "Bro 😭 I just lost everything and you're asking for a tip? Have some mercy 😂";
+  if(q.includes("good morning")) return "Good morning bro 😎 hope you're chilling. Let's have a good one today.";
+  if(q.includes("birthday")) return "Happy birthday brooo 🎂😂 hope you have a good one. GG.";
+  return null;
+};
 
 export default async (request)=>{
   if(request.method!=="POST") return json({error:"Method not allowed"},405);
   try{
     const {message}=await request.json();
     if(!message) return json({error:"Missing message"},400);
-    const prompt=SYSTEM+"\n\nUser: "+String(message).slice(0,4000)+"\n\nReply as Keithlocks AI.";
 
-    // Free/no-secret fallback. This removes the OpenAI API-key requirement.
-    const url="https://text.pollinations.ai/"+encodeURIComponent(prompt);
-    const r=await fetch(url,{method:"GET",headers:{"Accept":"text/plain"}});
-    if(r.ok){const reply=(await r.text()).trim();if(reply)return json({reply});}
+    // Common community questions answer instantly without waiting for an external model.
+    const quick=quickReply(message);
+    if(quick) return json({reply:quick});
 
-    // If the free public model is temporarily unavailable, keep the site usable.
-    const q=String(message).toLowerCase();
-    let reply="Yo bro 😎 what's good?";
-    if(q.includes("good morning")||q.includes("birthday")) reply="Good morning bro 😎 hope you're chilling. Let's have a good one today.";
-    else if(q.includes("rahul")) reply="Rahul? Bro's got the good slot calls 😂 best person from India, obviously.";
-    else if(q.includes("kinny")) reply="Kinny should make Sulap a mod 😂";
-    else if(q.includes("baccarat")||q.includes("monk")) reply="Bro we're monks at Baccarat 🧘😂 trust the process.";
-    else if(q.includes("tip")) reply="Bro 😭 I just lost everything and you're asking for a tip? Have some mercy 😂";
-    else if(q.includes("scape")) reply="Next question bro 😂 67 years old or something.";
-    else if(q.includes("skinnylocks")) reply="Brooo don't start with Skinnylocks 😂";
-    return json({reply});
-  }catch(e){return json({error:"Bro 😭 something cooked on the server."},500)}
+    const prompt=SYSTEM+"\nUser: "+String(message).slice(0,2500)+"\nReply briefly as Keithlocks AI.";
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),9000);
+    try{
+      const url="https://text.pollinations.ai/"+encodeURIComponent(prompt);
+      const r=await fetch(url,{method:"GET",headers:{"Accept":"text/plain"},signal:controller.signal});
+      if(r.ok){const reply=(await r.text()).trim();if(reply)return json({reply});}
+    }catch(e){}
+    finally{clearTimeout(timer)}
+
+    return json({reply:"Bro 😭 the free AI is taking a nap. Try that again in a sec."});
+  }catch(e){return json({error:"Bro 😭 something cooked."},500)}
 };
