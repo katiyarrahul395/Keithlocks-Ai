@@ -7,13 +7,27 @@ Clean rebuild of the Keithlocks AI fan project.
 - Build command: none
 - Publish directory: `.`
 - Functions directory: `netlify/functions`
-- The site calls `/.netlify/functions/chat`.
+- The site calls `/api/chat` → `/.netlify/functions/chat`.
 
-## AI backend
+## AI backend — OpenRouter
 
-The Netlify Function uses a free public text AI endpoint and has instant replies for common community-lore questions. No API key is placed in the browser.
+The Netlify Function now uses **OpenRouter** instead of Gemini/Groq.
 
-If the free provider is temporarily unavailable, the UI shows the actual service error instead of repeating a fake stock answer.
+Set this Netlify environment variable:
+
+```text
+OPENROUTER_API_KEY=your_openrouter_key
+```
+
+The function defaults to:
+
+```text
+OPENROUTER_MODEL=openrouter/free
+```
+
+You can optionally set `OPENROUTER_MODEL` to another OpenRouter model. With `openrouter/free`, the router selects an available free model; free models can still have rate limits or temporary availability limits.
+
+The API key is server-side only and is never placed in the browser.
 
 ## Important
 
