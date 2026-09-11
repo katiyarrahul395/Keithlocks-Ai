@@ -23,18 +23,33 @@ const quickReply = (message) => {
   return null;
 };
 
-async function pollinations(messages, signal) {
-  // Public/free text endpoint: no secret is exposed in the browser.
-  const r = await fetch("https://text.pollinations.ai/", {
+async function gemini(message, signal) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured in Netlify.");
+
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const r = await fetch(endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "text/plain" },
-    body: JSON.stringify({ messages }),
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM }] },
+      contents: [{ role: "user", parts: [{ text: message.slice(0, 2500) }] }],
+      generationConfig: { temperature: 0.85, maxOutputTokens: 500 }
+    }),
     signal
   });
-  if (!r.ok) throw new Error(`Free model HTTP ${r.status}`);
-  const text = (await r.text()).trim();
-  if (!text) throw new Error("Empty free-model response");
-  return text;
+
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    console.error("Gemini API error", r.status, data);
+    throw new Error(data?.error?.message || `Gemini API HTTP ${r.status}`);
+  }
+
+  const reply = data?.candidates?.[0]?.content?.parts?.map(p => p?.text || "").join("").trim();
+  if (!reply) throw new Error("Gemini returned no text.");
+  return reply;
 }
 
 export default async (request) => {
@@ -45,46 +60,22 @@ export default async (request) => {
     const message = String(body?.message || "").trim();
     if (!message) return json({ error: "Please type a message." }, 400);
 
-    // Known community questions are instant, so the site feels fast.
     const quick = quickReply(message);
     if (quick) return json({ reply: quick, source: "instant" });
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-
+    const timer = setTimeout(() => controller.abort(), 15000);
     try {
-      const reply = await pollinations([
-        { role: "system", content: SYSTEM },
-        { role: "user", content: message.slice(0, 2500) }
-      ], controller.signal);
-      return json({ reply, source: "free-ai" });
-    } catch (firstError) {
-      // One short retry gives transient free-endpoint failures a chance to recover.
-      try {
-        const retryController = new AbortController();
-        const retryTimer = setTimeout(() => retryController.abort(), 7000);
-        try {
-          const compactSystem = "Answer the user's question helpfully. You are Keithlocks AI, an unofficial fan-made character. Be casual and funny, but answer unrelated questions normally. Never claim to be the real person. Keep it concise.";
-          const reply = await pollinations([
-            { role: "system", content: compactSystem },
-            { role: "user", content: message.slice(0, 2000) }
-          ], retryController.signal);
-          return json({ reply, source: "free-ai-retry" });
-        } finally {
-          clearTimeout(retryTimer);
-        }
-      } catch (retryError) {
-        console.error("Free AI failed", firstError, retryError);
-        return json({
-          error: "The free AI service is temporarily unavailable. Your message was received, but no AI response came back.",
-          code: "FREE_AI_UNAVAILABLE"
-        }, 503);
-      }
+      const reply = await gemini(message, controller.signal);
+      return json({ reply, source: "gemini" });
     } finally {
       clearTimeout(timer);
     }
   } catch (error) {
     console.error("Chat function error", error);
-    return json({ error: "The chat request was invalid. Try sending the message again." }, 400);
+    const message = error?.name === "AbortError"
+      ? "Bro 😭 Gemini took too long to answer. Try again in a sec."
+      : error?.message || "Gemini connection is cooked. Try again in a sec.";
+    return json({ error: message, code: "GEMINI_ERROR" }, 503);
   }
 };
