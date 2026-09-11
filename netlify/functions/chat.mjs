@@ -24,83 +24,85 @@ Keithlocks likes golf and ice hockey, calls himself a self-proclaimed pro at hoc
 const json = (x, status = 200) => new Response(JSON.stringify(x), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
 
 function normalizeMessages(messages) {
-  return messages.map(m => ({ role: m.role === 'model' || m.role === 'assistant' ? 'assistant' : 'user', text: String(m.text || '').slice(0, 2500) }));
-}
-
-async function callGemini(messages, model, signal) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw Object.assign(new Error('GEMINI_API_KEY is not configured.'), { provider: 'Gemini', status: 401 });
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-  const contents = normalizeMessages(messages).map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.text }] }));
-  const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ systemInstruction: { parts: [{ text: SYSTEM }] }, contents, generationConfig: { temperature: 0.85, maxOutputTokens: 450 } }), signal });
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok) { const err = new Error(data?.error?.message || `Gemini API HTTP ${r.status}`); err.status = r.status; err.provider = 'Gemini'; throw err; }
-  const reply = data?.candidates?.[0]?.content?.parts?.map(p => p?.text || '').join('').trim();
-  if (!reply) throw Object.assign(new Error('Gemini returned no text.'), { provider: 'Gemini', status: 502 });
-  return reply;
+  return messages.map(m => ({
+    role: m.role === 'model' || m.role === 'assistant' ? 'assistant' : 'user',
+    text: String(m.text || '').slice(0, 2500)
+  }));
 }
 
 async function callOpenRouter(messages, signal) {
   const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) throw Object.assign(new Error('OPENROUTER_API_KEY is not configured.'), { provider: 'OpenRouter', status: 401 });
-  const input = [{ role: 'system', content: SYSTEM }, ...normalizeMessages(messages).map(m => ({ role: m.role, content: m.text }))];
-  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`, 'HTTP-Referer': 'https://keithlocks-ai.netlify.app', 'X-Title': 'Keithlocks AI' }, body: JSON.stringify({ model: 'openrouter/free', messages: input, temperature: 0.85, max_tokens: 450 }), signal });
+  if (!apiKey) throw Object.assign(new Error('OPENROUTER_API_KEY is not configured in Netlify.'), { provider: 'OpenRouter', status: 401 });
+
+  const model = String(process.env.OPENROUTER_MODEL || 'openrouter/free').trim();
+  const input = [
+    { role: 'system', content: SYSTEM },
+    ...normalizeMessages(messages).map(m => ({ role: m.role, content: m.text }))
+  ];
+
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://keithlocks-ai.netlify.app',
+      'X-Title': 'Keithlocks AI'
+    },
+    body: JSON.stringify({
+      model,
+      messages: input,
+      temperature: 0.85,
+      max_tokens: 450
+    }),
+    signal
+  });
+
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) { const err = new Error(data?.error?.message || `OpenRouter API HTTP ${r.status}`); err.status = r.status; err.provider = 'OpenRouter'; throw err; }
+  if (!r.ok) {
+    const err = new Error(data?.error?.message || `OpenRouter API HTTP ${r.status}`);
+    err.status = r.status;
+    err.provider = 'OpenRouter';
+    throw err;
+  }
+
   const reply = data?.choices?.[0]?.message?.content?.trim();
   if (!reply) throw Object.assign(new Error('OpenRouter returned no text.'), { provider: 'OpenRouter', status: 502 });
-  return reply;
-}
-
-async function callGroq(messages, signal) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) throw Object.assign(new Error('GROQ_API_KEY is not configured.'), { provider: 'Groq', status: 401 });
-  const input = [{ role: 'system', content: SYSTEM }, ...normalizeMessages(messages).map(m => ({ role: m.role, content: m.text }))];
-  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
-  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model, messages: input, temperature: 0.85, max_tokens: 450 }), signal });
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok) { const err = new Error(data?.error?.message || `Groq API HTTP ${r.status}`); err.status = r.status; err.provider = 'Groq'; throw err; }
-  const reply = data?.choices?.[0]?.message?.content?.trim();
-  if (!reply) throw Object.assign(new Error('Groq returned no text.'), { provider: 'Groq', status: 502 });
-  return reply;
+  return { reply, model };
 }
 
 export default async (request) => {
   if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
   try {
     const body = await request.json();
     const messages = Array.isArray(body?.messages) ? body.messages : [];
-    const clean = messages.filter(m => (m?.role === 'user' || m?.role === 'model' || m?.role === 'assistant') && String(m?.text || '').trim()).slice(-16);
+    const clean = messages
+      .filter(m => (m?.role === 'user' || m?.role === 'model' || m?.role === 'assistant') && String(m?.text || '').trim())
+      .slice(-16);
+
     if (!clean.length) return json({ error: 'Please type a message.' }, 400);
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 20000);
-    const providers = [];
-    try {
-      const configuredGemini = String(process.env.GEMINI_MODEL || '').trim();
-      const geminiModels = configuredGemini ? [configuredGemini] : ['gemini-3.6-flash', 'gemini-3-flash-preview', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
-      providers.push(...geminiModels.map(model => ({ name: 'Gemini', run: () => callGemini(clean, model, controller.signal), model })));
-      providers.push({ name: 'OpenRouter', run: () => callOpenRouter(clean, controller.signal), model: 'openrouter/free' });
-      providers.push({ name: 'Groq', run: () => callGroq(clean, controller.signal), model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile' });
 
-      const errors = [];
-      for (const provider of providers) {
-        try {
-          const reply = await provider.run();
-          return json({ reply, source: provider.name, model: provider.model, fallback: provider.name !== 'Gemini' });
-        } catch (error) {
-          if (error?.name === 'AbortError') throw error;
-          errors.push(`${provider.name}: ${error?.message || 'unavailable'}`);
-          console.warn(`${provider.name} failed; trying next provider`, error?.message || error);
-        }
-      }
-      throw new Error(`All configured AI providers failed. ${errors.join(' | ')}`);
+    try {
+      const result = await callOpenRouter(clean, controller.signal);
+      return json({ reply: result.reply, source: 'OpenRouter', model: result.model });
     } finally {
       clearTimeout(timer);
     }
   } catch (error) {
-    console.error('Chat function error', error);
-    const message = error?.name === 'AbortError' ? 'The AI providers took too long. Try again in a sec.' : 'Bro 😭 all the free AI providers are cooked right now. Try again in a sec.';
-    return json({ error: message, code: 'AI_PROVIDERS_ERROR' }, 503);
+    console.error('OpenRouter chat function error', error);
+
+    if (error?.name === 'AbortError') {
+      return json({ error: 'Bro 😭 OpenRouter took too long. Try again in a sec.', code: 'AI_TIMEOUT' }, 504);
+    }
+
+    const status = Number(error?.status);
+    let message = 'Bro 😭 OpenRouter is cooked right now. Try again in a sec.';
+    if (status === 401) message = 'Bro 😭 the OpenRouter API key is missing or invalid. Add OPENROUTER_API_KEY in Netlify environment variables.';
+    else if (status === 429) message = 'Bro 😭 OpenRouter is rate-limited right now. Give it a moment and try again.';
+
+    return json({ error: message, code: 'OPENROUTER_ERROR' }, status >= 400 && status < 600 ? status : 503);
   }
 };
