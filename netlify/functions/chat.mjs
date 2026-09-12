@@ -6,9 +6,16 @@ IMPORTANT:
 - Never invent private facts or present unverified personal/relationship/health information as fact.
 - Keep the style casual: bro, man, wtf, gg, trust bro, emojis, playful sarcasm. Do not overdo it.
 
+SLOT CONVERSATION RULE:
+- Do NOT mention AFTERNOON NAP in every answer.
+- When someone asks for a slot call/recommendation, give AFTERNOON NAP 😎 trust bro trust.
+- If they reject/mock that recommendation and ask for another/different slot, give one of the supplied alternatives instead: Dojo Duel 2, Samurai Dog, Madame Mystic Megaways, Gates of Heaven 1K, Geeked, Wanted Salvation, or Quenchy by Hit Engine.
+- If they ask for more alternatives again, continue through that supplied list rather than repeatedly returning to AFTERNOON NAP.
+- Only recommend a slot when the user is actually asking for a slot/game recommendation. Do not inject slot names into unrelated answers.
+
 SUPPLIED LORE:
 - Favourite slot: AFTERNOON NAP 😎 trust bro trust.
-- Alternatives if they refuse it: Dojo Duel 2, Samurai Dog, Madame Mystic Megaways, Gates of Heaven 1K, Geeked, Wanted Salvation, Quenchy by Hit Engine.
+- Alternatives: Dojo Duel 2, Samurai Dog, Madame Mystic Megaways, Gates of Heaven 1K, Geeked, Wanted Salvation, Quenchy by Hit Engine.
 - Meltdown is disliked in the supplied community banter: “Absolutely not 😭 worst slot. Scape plant slot. The math is fucked, the visuals are trash, and the gameplay is way too fast.” Keep that as fan/community opinion.
 - Rahul: Indian viewer known for good slot calls; community joke says he is the best person from India.
 - Rajsuk365: Indian viewer and sports fan; Keith jokes about ignoring some of his calls.
@@ -29,12 +36,11 @@ function normalizeMessages(messages) {
   return messages.map(m => ({ role: m.role === 'model' || m.role === 'assistant' ? 'assistant' : 'user', text: String(m.text || '').slice(0, 2500) }));
 }
 
-function directAnswer(question) {
+function directAnswer(question, messages = []) {
   const q = question.toLowerCase().trim().replace(/[?!.]+$/g, '');
   const has = (...terms) => terms.some(t => new RegExp(`\\b${t.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}\\b`, 'i').test(q));
+  const slotAlternatives = ['Dojo Duel 2', 'Samurai Dog', 'Madame Mystic Megaways', 'Gates of Heaven 1K', 'Geeked', 'Wanted Salvation', 'Quenchy by Hit Engine'];
 
-  // Public-persona questions are answered as the fan-made character, not as an
-  // assertion about the real person's private life.
   if (/(?:are|is)\\s+(?:you|keith|keithlocks)\\s+(?:gay|straight|bi|bisexual|homosexual)/i.test(q)) {
     return 'You joke man 😭 I\'m fully straight. 😂';
   }
@@ -42,8 +48,14 @@ function directAnswer(question) {
     return 'Keithlocks? 😎 Big Papa Paint, Big Spilter, Papalocks, Young Handsome — you already know bro. Unofficial fan-AI version, obviously 😂.';
   }
   if (/(?:birthday|born)\\b/i.test(q) && has('keith','keithlocks')) return 'September 19 🎂. Don\'t forget it bro 😂.';
-  if (/(?:favorite|favourite)\\s+(?:slot|game)|which\\s+slot|what\\s+slot|slot\\s+(?:should|do)\\s+i\\s+play/i.test(q)) return 'AFTERNOON NAP 😎 trust bro trust.';
-  if (/(?:don\'t|do not|not)\\b.*afternoon\\s*nap/i.test(q)) return 'Fine bro 😭 then try Dojo Duel 2, Samurai Dog, Madame Mystic Megaways, Gates of Heaven 1K, Geeked, Wanted Salvation, or Quenchy by Hit Engine.';
+
+  // Slot recommendations: AFTERNOON NAP is the first call only when the user
+  // actually asks for a slot. A rejection moves the conversation to alternatives.
+  const asksForSlot = /\\b(?:slot|game)\\b/i.test(q) && /\\b(?:call|calls|play|pick|choose|recommend|suggest|give|want|need|should|another|different|other)\\b/i.test(q);
+  const rejectsAfternoon = /\\b(?:nah|no|nope|never|not|don't|do not|dont|fuck that|your joke|you(?:'re| are) joking|joke)\\b/i.test(q) && /\\b(?:another|different|other|one|slot|game|call)\\b/i.test(q);
+  if (rejectsAfternoon && asksForSlot) return `Alright bro 😭 try ${slotAlternatives[0]}. Trust.`;
+  if (/(?:don\'t|do not|not|nah|no)\\b.*afternoon\\s*nap/i.test(q) && /\\b(?:another|different|other|slot|game|call)\\b/i.test(q)) return `Alright bro 😭 try ${slotAlternatives[0]}. Trust.`;
+  if (asksForSlot) return 'AFTERNOON NAP 😎 trust bro trust.';
   if (/\\bmeltdown\\b/i.test(q)) return 'Absolutely not 😭 worst slot. Scape plant slot. The math is fucked, the visuals are trash, and the gameplay is way too fast. That\'s the community opinion, bro.';
 
   if (has('rahul')) return 'Rahul? 😎 Good guy man. Known for good slot calls — probably the best person from India 😂 trust.';
@@ -130,8 +142,7 @@ export default async (request) => {
     const lastUser = [...clean].reverse().find(m => m.role === 'user');
     const question = String(lastUser?.text || '').trim();
 
-    // Scripted Keithlocks/community persona ALWAYS gets first priority.
-    const direct = directAnswer(question);
+    const direct = directAnswer(question, clean);
     if (direct) return json({ reply: direct, source: 'scripted-persona' });
 
     const local = simpleKnowledge(question);
