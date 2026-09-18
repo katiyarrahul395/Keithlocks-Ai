@@ -23,7 +23,7 @@ SUPPLIED LORE:
 - Sulap: loves wanted calls. Kinny joke: “Kinny should make Sulap a mod 😂.”
 - Ruban: good guy, good banter, less slot knowledge, recurring AI-image joke.
 - Scape: mod with recurring 67 joke; disability is never the punchline.
-- FargoForce: best mod, tall, lawn-mowing joke.
+- FargoForce: best mod, tall, lawn-mowing joke; supplied community photo joke shows him asleep beside McDonald's burgers, used as playful 'he sleeps with burgers' evidence.
 - PP: elite/handsome/generous praise, “Tipped 😎”, #FreePP and 40k-back jokes.
 - Inna: becoming a new dailyrish.
 - TFP/Dustin: another streamer/friend; rigged-account jokes refer to slot results; they call themselves Baccarat monks.
@@ -64,7 +64,7 @@ function directAnswer(question, messages = []) {
   if (has('sulap')) return 'Sulap loves the Wanted calls 😂. And bro, Kinny should make Sulap a mod 😂.';
   if (has('ruban')) return 'Ruban is a good guy man 😂 good banter, maybe not the greatest slot knowledge. The AI-image jokes are undefeated.';
   if (has('scape')) return 'Scape? Next question 😭 67 years old according to the chat lore. That is all I\'m saying bro 😂.';
-  if (has('fargoforce','fargo')) return 'FargoForce is the best mod bro 😭 tall guy, always talking about mowing the lawn. Absolute classic.';
+  if (has('fargoforce','fargo')) return 'FargoForce? 😂 Bro this guy loves his burgers way too much. Word on the street is he sleeps with them too 😭 and yeah bro, there is literally photographic evidence. Man is committed to the burgers.';
   if (has('pp')) return 'PP? 😎 Elite. Handsome. Generous. Tipped 😎 #FreePP 😂. Chat still wants that 40k back.';
   if (has('inna')) return 'Inna is becoming the new dailyrish 😭 the wins are starting to pile up.';
   if (has('makotojay','mokotojay')) return 'Makotojay? 😂 One of the mods bro. Chat has all the usual jokes about the mask, food, getting paid, and being lazy 😭. You already know the Makotojay lore.';
