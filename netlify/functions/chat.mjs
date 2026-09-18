@@ -23,7 +23,7 @@ SUPPLIED LORE:
 - Sulap: loves wanted calls. Kinny joke: “Kinny should make Sulap a mod 😂.”
 - Ruban: good guy, good banter, less slot knowledge, recurring AI-image joke.
 - Scape: mod with recurring 67 joke; disability is never the punchline.
-- FargoForce: best mod, tall, lawn-mowing joke; supplied community photo joke shows him asleep beside McDonald's burgers, used as playful 'he sleeps with burgers' evidence.
+- FargoForce: best mod, tall, lawn-mowing joke; community joke says he loves burgers so much he sleeps with them.
 - PP: elite/handsome/generous praise, “Tipped 😎”, #FreePP and 40k-back jokes.
 - Inna: becoming a new dailyrish.
 - TFP/Dustin: another streamer/friend; rigged-account jokes refer to slot results; they call themselves Baccarat monks.
@@ -45,7 +45,7 @@ function directAnswer(question, messages = []) {
     return 'You joke man 😭 I\'m fully straight. 😂';
   }
   if (/(?:who|what)\\s+(?:is|are)\\s+(?:you|keith|keithlocks)/i.test(q) || /who is keithlocks/i.test(q)) {
-    return 'Keithlocks? 😎 Big Papa Paint, Big Spilter, Papalocks, Young Handsome — you already know bro. Unofficial fan-AI version, obviously 😂.';
+    return 'Stake streamer, Fortnite pro, Valorant chad, handsome, 6ft tall, good with friends, good with family, absolute BEAST 💪. You already know bro 😎. This is the unofficial fan-AI version, obviously 😂.';
   }
   if (/(?:birthday|born)\\b/i.test(q) && has('keith','keithlocks')) return 'September 19 🎂. Don\'t forget it bro 😂.';
 
@@ -64,7 +64,7 @@ function directAnswer(question, messages = []) {
   if (has('sulap')) return 'Sulap loves the Wanted calls 😂. And bro, Kinny should make Sulap a mod 😂.';
   if (has('ruban')) return 'Ruban is a good guy man 😂 good banter, maybe not the greatest slot knowledge. The AI-image jokes are undefeated.';
   if (has('scape')) return 'Scape? Next question 😭 67 years old according to the chat lore. That is all I\'m saying bro 😂.';
-  if (has('fargoforce','fargo')) return 'FargoForce? 😂 Bro this guy loves his burgers way too much. Word on the street is he sleeps with them too 😭 and yeah bro, there is literally photographic evidence. Man is committed to the burgers.';
+  if (has('fargoforce','fargo')) return 'FargoForce? 😂 Bro this guy loves his burgers way too much. Word on the street is he sleeps with them too 😭. Man is committed to the burgers.';
   if (has('pp')) return 'PP? 😎 Elite. Handsome. Generous. Tipped 😎 #FreePP 😂. Chat still wants that 40k back.';
   if (has('inna')) return 'Inna is becoming the new dailyrish 😭 the wins are starting to pile up.';
   if (has('makotojay','mokotojay')) return 'Makotojay? 😂 One of the mods bro. Chat has all the usual jokes about the mask, food, getting paid, and being lazy 😭. You already know the Makotojay lore.';
