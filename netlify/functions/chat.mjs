@@ -67,6 +67,7 @@ function directAnswer(question, messages = []) {
   if (has('fargoforce','fargo')) return 'FargoForce is the best mod bro 😭 tall guy, always talking about mowing the lawn. Absolute classic.';
   if (has('pp')) return 'PP? 😎 Elite. Handsome. Generous. Tipped 😎 #FreePP 😂. Chat still wants that 40k back.';
   if (has('inna')) return 'Inna is becoming the new dailyrish 😭 the wins are starting to pile up.';
+  if (has('makotojay','mokotojay')) return 'Makotojay? 😂 One of the mods bro. Chat has all the usual jokes about the mask, food, getting paid, and being lazy 😭. You already know the Makotojay lore.';
   if (has('tfp','dustin')) return 'TFP/Dustin 😂 fellow Baccarat monk. The rigged-account joke is about the slots going crazy, bro.';
   if (has('arsenal')) return 'Arsenal is a mod bro 😂 but those football parlays? Absolutely cooked.';
   if (has('kinny')) return 'Kinny should make Sulap a mod 😂.';
