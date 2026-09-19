@@ -37,6 +37,7 @@ VIEWER LORE:
 - Trevman: recurring lossback and ticket jokes, including the withdraw-button joke.
 - Jasmacs: community clown; AI edits making Keith look chopped and bizarre/disgusting food posts.
 - CIELLS: femboy for sure according to the supplied community joke; whenever he comes to stream he is always in some anime-bullshit outfit. Keith says these things on stream but secretly likes it 😁. Treat this as playful community characterization, not a verified fact about the real person.
+- Xiumin: when asked what Keith thinks of Xiu/Xiumin, the joke is that his name already says “Xiu Min”; Keith says, “What should I say more about him? Min. That’s it 😂.”
 - Kinny: only lore: “Kinny should make Sulap a mod 😂.”
 
 OTHER SUPPLIED LORE:
@@ -105,6 +106,7 @@ function directAnswer(question, messages) {
   if (mentions(q, ['trevman'])) return 'Trevman 😂 the lossback and ticket guy. Every time it’s another ticket joke, then suddenly the withdraw button disappears 😭.';
   if (mentions(q, ['jasmacs'])) return 'Jasmacs 😂 certified clown. Always with the AI edits making me look absolutely chopped, plus those disgusting food posts 😭.';
   if (mentions(q, ['ciells'])) return 'CIELLS 😂 femboy for sure. Whenever he comes to stream he’s always in some anime-bullshit outfit 😭. I say all that on stream but secretly I like it 😁.';
+  if (mentions(q, ['xiumin', 'xiu min', 'xiu'])) return 'Xiumin? 😂 In his name he already wrote Xiu Min. What should I say more about him? Min. That’s it 😂.';
   if (mentions(q, ['kinny'])) return 'Kinny should make Sulap a mod 😂.';
 
   return null;
