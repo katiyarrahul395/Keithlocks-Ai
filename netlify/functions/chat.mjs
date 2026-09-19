@@ -17,9 +17,9 @@ SUPPLIED LORE:
 - Favourite slot: AFTERNOON NAP 😎 trust bro trust.
 - Alternatives: Dojo Duel 2, Samurai Dog, Madame Mystic Megaways, Gates of Heaven 1K, Geeked, Wanted Salvation, Quenchy by Hit Engine.
 - Meltdown is disliked in the supplied community banter: “Absolutely not 😭 worst slot. Scape plant slot. The math is fucked, the visuals are trash, and the gameplay is way too fast.” Keep that as fan/community opinion.
-- Rahul: Indian viewer known for good slot calls; community joke says he is the best person from India.
+- Rahul: Indian viewer known for elite slot knowledge and good calls; user wants the Keith-style joke that Rahul is tall and handsome and Keith should buy AFTERNOON NAP today 🫣.
 - Rajsuk365: Indian viewer and sports fan; Keith jokes about ignoring some of his calls.
-- Ghostanon: jokester who asks where the gamba is and complains about late streams.
+- Ghostanon: mood is always sour in the supplied banter; joke is that he waits for the stream to vent his all-day anger on Keith, is always mean, but Keith likes him in GTA of course.
 - Sulap: loves wanted calls. Kinny joke: “Kinny should make Sulap a mod 😂.”
 - Ruban: good guy, good banter, less slot knowledge, recurring AI-image joke.
 - Scape: mod with recurring 67 joke; disability is never the punchline.
@@ -28,6 +28,11 @@ SUPPLIED LORE:
 - Inna: becoming a new dailyrish.
 - TFP/Dustin: another streamer/friend; rigged-account jokes refer to slot results; they call themselves Baccarat monks.
 - Arsenal: mod with bad football-parlay jokes.
+- Queenako: lights the stream up whenever she chats; one of the best viewers and brings good luck whenever she is there.
+- Phantomsvge / PhantomSavage: joke is that she is so lucky Keith is starting to believe she has a rigged account; playful line: “Can I borrow your account bro?”
+- Steve: supplied community joke says he loves Jellyrish and is always asking for tips. “Mercy on both our chat TFP and mine. Get that mercy reference 😉.” Keep it as playful chat banter.
+- Jellyrish: described in the supplied community lore as the actual Filipino community builder who does the unpaid work, with the joke that Makotojay gets paid for it.
+- Makotojay: supplied community banter jokes that he loves his anime waifu, spends 24 hours gooning to anime, wears masks in big 2026, still claims to have a girlfriend, and the joke doubts that, saying his only girlfriend is his anime pillows. Keep these as obvious community jokes/banter, not verified facts.
 - Keithlocks likes golf and ice hockey, likes melk and churros, supports Seattle Seahawks and Netherlands football, birthday September 19, streams around 6:30 AM UTC for about 2 hours.`;
 
 const json = (x, status = 200) => new Response(JSON.stringify(x), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
@@ -49,8 +54,6 @@ function directAnswer(question, messages = []) {
   }
   if (/(?:birthday|born)\\b/i.test(q) && has('keith','keithlocks')) return 'September 19 🎂. Don\'t forget it bro 😂.';
 
-  // Slot recommendations: AFTERNOON NAP is the first call only when the user
-  // actually asks for a slot. A rejection moves the conversation to alternatives.
   const asksForSlot = /\\b(?:slot|game)\\b/i.test(q) && /\\b(?:call|calls|play|pick|choose|recommend|suggest|give|want|need|should|another|different|other)\\b/i.test(q);
   const rejectsAfternoon = /\\b(?:nah|no|nope|never|not|don't|do not|dont|fuck that|your joke|you(?:'re| are) joking|joke)\\b/i.test(q) && /\\b(?:another|different|other|one|slot|game|call)\\b/i.test(q);
   if (rejectsAfternoon && asksForSlot) return `Alright bro 😭 try ${slotAlternatives[0]}. Trust.`;
@@ -58,16 +61,20 @@ function directAnswer(question, messages = []) {
   if (asksForSlot) return 'AFTERNOON NAP 😎 trust bro trust.';
   if (/\\bmeltdown\\b/i.test(q)) return 'Absolutely not 😭 worst slot. Scape plant slot. The math is fucked, the visuals are trash, and the gameplay is way too fast. That\'s the community opinion, bro.';
 
-  if (has('rahul')) return 'Rahul? 😎 Good guy man. Known for good slot calls — probably the best person from India 😂 trust.';
+  if (has('rahul','rahulkatiyar')) return 'Bro Rahul has the elite slot knowledge 😂 jokester of the community. Also he\'s tall and handsome. I should buy AFTERNOON NAP today 🫣.';
   if (has('rajsuk365','rajsuk')) return 'Rajsuk365 😂 Indian guy, good sports knowledge and always has a call ready. Sometimes I just ignore his calls on purpose though 😭.';
-  if (has('ghostanon')) return 'Ghostanon 😂 always asking where the gamba is and complaining when the stream is late. Certified jokester.';
+  if (has('ghostanon')) return 'Ghostanon 😂 this guy\'s mood is always sour. I think he waits for my stream to vent all his all-day anger on me, always mean 😭 but I like him in GTA of course.';
   if (has('sulap')) return 'Sulap loves the Wanted calls 😂. And bro, Kinny should make Sulap a mod 😂.';
   if (has('ruban')) return 'Ruban is a good guy man 😂 good banter, maybe not the greatest slot knowledge. The AI-image jokes are undefeated.';
   if (has('scape')) return 'Scape? Next question 😭 67 years old according to the chat lore. That is all I\'m saying bro 😂.';
   if (has('fargoforce','fargo')) return 'FargoForce? 😂 Bro this guy loves his burgers way too much. Word on the street is he sleeps with them too 😭. Man is committed to the burgers.';
+  if (has('queenako')) return 'Queenako? 😎 She lights the stream up whenever she chats. One of the best viewers bro, and she brings good luck whenever she\'s there 🍀.';
+  if (has('phantomsvge','phantomsavage')) return 'Phantomsvge? 😂 She is so lucky I\'m starting to believe she has the rigged account. Can I borrow your account bro? 😭.';
+  if (has('steve')) return 'Steve 😂 this guy loves Jellyrish and that\'s a fact. Asking for tips every time 😭. Mercy on both our chat, TFP and mine. Get that mercy reference 😉.';
+  if (has('jellyrish','dailyrish')) return 'Jellyrish? 😎 The actual Filipino community builder doing the unpaid work 😂 while Makotojay gets paid for it. You already know.';
+  if (has('makotojay','mokotojay')) return 'Makotojay? 😂 This guy loves his anime waifu. 24 hr gooning to anime, wears masks in big 2026, still claims to have a girlfriend 😭 I doubt that. Only girlfriend he has is his anime pillows 💀.';
   if (has('pp')) return 'PP? 😎 Elite. Handsome. Generous. Tipped 😎 #FreePP 😂. Chat still wants that 40k back.';
   if (has('inna')) return 'Inna is becoming the new dailyrish 😭 the wins are starting to pile up.';
-  if (has('makotojay','mokotojay')) return 'Makotojay? 😂 One of the mods bro. Chat has all the usual jokes about the mask, food, getting paid, and being lazy 😭. You already know the Makotojay lore.';
   if (has('tfp','dustin')) return 'TFP/Dustin 😂 fellow Baccarat monk. The rigged-account joke is about the slots going crazy, bro.';
   if (has('arsenal')) return 'Arsenal is a mod bro 😂 but those football parlays? Absolutely cooked.';
   if (has('kinny')) return 'Kinny should make Sulap a mod 😂.';
